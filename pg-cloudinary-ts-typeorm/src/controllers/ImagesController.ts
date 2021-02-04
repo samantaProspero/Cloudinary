@@ -2,6 +2,8 @@ import {Request, Response} from 'express';
 import { getRepository } from 'typeorm';
 
 import cloudinary from '../middlewares/cloudinary';
+import imageView from '../views/images_view';
+
 import Image from '../models/Images';
 
 export default class ImagesController{
@@ -10,7 +12,7 @@ export default class ImagesController{
       const imagesRepository = getRepository(Image)
       const images = await imagesRepository.find()
 
-      res.json(images);
+      res.json(imageView.renderMany(images));
     } catch (err) {
       console.log(err);
     }
@@ -44,7 +46,7 @@ export default class ImagesController{
 
       const imagesRepository = getRepository(Image)
       const image = await imagesRepository.findOneOrFail(id)
-      res.json(image);
+      res.json(imageView.render(image));
     } catch (err) {
       console.log(err);
     }
@@ -82,7 +84,7 @@ export default class ImagesController{
       await cloudinary.uploader.destroy(image.cloudinary_id);
       // Delete image from db
       await imagesRepository.remove(image)
-      return res.status(200).json(image);
+      return res.status(200).json(imageView.render(image));
     } catch (err) {
       console.log(err);
     }
